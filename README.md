@@ -1,6 +1,6 @@
 # Frequency-based Post-train Bayesian Attack
 
-Download[https://drive.google.com/drive/folders/1wAm8s5dOv9AxlBhIWGOiKLXOV2RGcrbo?usp=sharing] checkpoints trained on CNNDetect's dataset and example images for test.
+[Download](https://drive.google.com/drive/folders/1wAm8s5dOv9AxlBhIWGOiKLXOV2RGcrbo?usp=sharing) checkpoints trained on CNNDetect's dataset and example images for test.
 
 
 Attack CNNSpot by FPBA:
