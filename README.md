@@ -16,6 +16,7 @@ python attack.py \
     --model CNNSpot \
     --dataset gan \
     --data_root ./gan_exp \
+    --ckpt ./checkpoints/CNNSpot_gan.pth \
     --appmodel_ckpt_root ./appended_mlp/CNNSpot \
     --appmodel_ckpt_name _CNNSpot_PYX_AppendedModel_AT.pth \
     --adv_data_path ./output \
