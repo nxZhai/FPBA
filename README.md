@@ -15,9 +15,29 @@ python attack.py \
     --batch_size 4 \
     --model CNNSpot \
     --dataset gan \
+    --data_root ./gan_exp \
     --appmodel_ckpt_root ./appended_mlp/CNNSpot \
     --appmodel_ckpt_name _CNNSpot_PYX_AppendedModel_AT.pth \
     --adv_data_path ./output \
     --results_dir ./results
+
+```
+
+Transfer Attack DenseNet or Swin model:
+
+```shell
+python test.py \
+    --seed 42 \
+    --mode tf_atk \
+    --exp_name fpba_densenet \
+    --earlystop True \
+    --bayes False \
+    --model DenseNet \
+    --dataset gan \
+    --data_root ./output \
+    --ckpt ./checkpoints/DenseNet_gan.pth \ 
+    --results_dir ./results \
+    --tf_attack FPBA \
+    --surrogate CNNSpot
 
 ```

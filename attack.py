@@ -14,8 +14,8 @@ from args import AttackArgs
 from fpba import FPBA
 from models import get_model
 from bayes_wrapper import BayesWrapper
-from datasets.process import processing
-from datasets.dataset import SynImageDataset, CleanSampleDataset
+from dataset.process import processing
+from dataset.dataset import SynImageDataset, CleanSampleDataset
 from utils import (
     set_random_seed,
     standard_confusion_matrix, 

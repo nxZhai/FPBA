@@ -6,8 +6,8 @@ from tqdm import tqdm
 
 from models import get_model
 from bayes_wrapper import BayesWrapper
-from datasets.process import processing, tfatk_processing
-from datasets.dataset import SynImageDataset
+from dataset.process import processing, tfatk_processing
+from dataset.dataset import SynImageDataset
 from args import BaseArgs
 from utils import (
     set_random_seed,

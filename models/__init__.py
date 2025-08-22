@@ -6,14 +6,14 @@ from models.Swin import Swin_B
 def get_model(opt):
     
     model_name = opt.model
-    mode = opt.mode
+
 
     if model_name == "CNNSpot":
-        model = CNNSpot(mode)
+        model = CNNSpot()
     elif model_name == "DenseNet":
-        model = DenseNet(mode)
+        model = DenseNet()
     elif model_name == "Swin":
-        model = Swin_B(mode)
+        model = Swin_B()
     else:
         raise ValueError(f"model {model_name} not found")
 
