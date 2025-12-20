@@ -1,7 +1,13 @@
 # Frequency-based Post-train Bayesian Attack
 
-[Download](https://drive.google.com/drive/folders/1wAm8s5dOv9AxlBhIWGOiKLXOV2RGcrbo?usp=sharing) checkpoints trained on CNNDetect's dataset and example images for test.
+Recent advancements in image synthesis, particularly with the advent of GAN and Diffusion models, have amplified public concerns regarding the dissemination of disinformation. To address such concerns, numerous AI-generated Image (AIGI) Detectors have been proposed and achieved promising performance in identifying fake images. However, there still lacks a systematic understanding of the adversarial robustness of AIGI detectors. In this paper, we examine the vulnerability of state-of-the-art AIGI detectors against adversarial attack under white-box and black-box settings, which has been rarely investigated so far. To this end, we propose a new method to attack AIGI detectors. First, inspired by the obvious difference between real images and fake images in the frequency domain, we add perturbations under the frequency domain to push the image away from its original frequency distribution. Second, we explore the full posterior distribution of the surrogate model to further narrow this gap between heterogeneous AIGI detectors, e.g., transferring adversarial examples across CNNs and ViTs. This is achieved by introducing a novel post-train Bayesian strategy that turns a single surrogate into a Bayesian one, capable of simulating diverse victim models using one pre-trained surrogate, without the need for re-training. We name our method as Frequency-based Post-train Bayesian Attack, or FPBA. Through FPBA, we demonstrate that adversarial attacks pose a real threat to AIGI detectors. FPBA can deliver successful black-box attacks across various detectors, generators, defense methods, and even evade cross-generator and compressed image detection, which are crucial real-world detection scenarios. 
 
+## Setup
+
+[Download](https://huggingface.co/collections/Oliver1515/robust-synthetic-image-detector) checkpoints trained on CNNDetect's dataset and example images from huggingface for test.
+
+
+## Experiments
 
 Attack CNNSpot by FPBA:
 
@@ -40,5 +46,18 @@ python test.py \
     --results_dir ./results \
     --tf_attack FPBA \
     --surrogate CNNSpot
+```
+
+## Cititing FPBA
+
+If you find this paper useful for your research, please use the following BibTeX entry.
+
+```bibtex
+@article{diao2024vulnerabilities,
+  title={Vulnerabilities in ai-generated image detection: The challenge of adversarial attacks},
+  author={Diao, Yunfeng and Zhai, Naixin and Miao, Changtao and Yu, Zitong and Wei, Xingxing and Yang, Xun and Wang, Meng},
+  journal={arXiv preprint arXiv:2407.20836},
+  year={2024}
+}
 
 ```
