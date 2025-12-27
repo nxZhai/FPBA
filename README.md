@@ -3,7 +3,7 @@
 <div align="center">
   <a href='https://arxiv.org/pdf/2407.20836'><img src='https://img.shields.io/badge/arXiv-FPBA-red'></a>  &nbsp;
   <a href="https://github.com/onotoa/fpba"><img src="https://img.shields.io/badge/GitHub-FPBA-9E95B7?logo=github"></a> &nbsp; 
-  <a href='Oliver1515/FPBA-CNNSpot'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Model-CNNSpot(FPBA)-blue'></a> &nbsp; 
+  <a href='https://huggingface.co/Oliver1515/FPBA-CNNSpot'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Model-CNNSpot(FPBA)-blue'></a> &nbsp; 
   <!-- <br> -->
   <a href='https://huggingface.co/datasets/Oliver1515/ProGAN-Eval'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Eval%20Dataset-ProGAN--Eval-blue'></a> &nbsp;
   <br>
