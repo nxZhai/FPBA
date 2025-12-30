@@ -17,7 +17,7 @@ Recent advancements in image synthesis, particularly with the advent of GAN and 
 ## Setup
 
 
-[Download](https://huggingface.co/collections/Oliver1515/robust-synthetic-image-detector) checkpoints trained on CNNDetect's dataset and example images from huggingface for test.
+[Download](https://huggingface.co/collections/Oliver1515/fpba) checkpoints trained on CNNDetect's dataset and example images from huggingface for test.
 
 
 ## Experiments
