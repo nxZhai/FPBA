@@ -66,11 +66,13 @@ python test.py \
 If you find this paper useful for your research, please use the following BibTeX entry.
 
 ```bibtex
-@article{diao2024vulnerabilities,
+@article{diao2026vulnerabilities,
   title={Vulnerabilities in ai-generated image detection: The challenge of adversarial attacks},
   author={Diao, Yunfeng and Zhai, Naixin and Miao, Changtao and Yu, Zitong and Wei, Xingxing and Yang, Xun and Wang, Meng},
-  journal={arXiv preprint arXiv:2407.20836},
-  year={2024}
+  journal={IEEE Transactions on Multimedia},
+  year={2026},
+  publisher={IEEE}
 }
+```
 
 ```
