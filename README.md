@@ -74,5 +74,3 @@ If you find this paper useful for your research, please use the following BibTeX
   publisher={IEEE}
 }
 ```
-
-```
