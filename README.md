@@ -1,67 +1,167 @@
-<h1 align="center"> Frequency-based Post-train Bayesian Attack </h1>
+<h1 align="center"> 🛡️ Frequency-based Post-train Bayesian Attack </h1>
 
 <div align="center">
   <a href='https://arxiv.org/pdf/2407.20836'><img src='https://img.shields.io/badge/arXiv-FPBA-red'></a>  &nbsp;
-  <a href="https://github.com/onotoa/fpba"><img src="https://img.shields.io/badge/GitHub-FPBA-9E95B7?logo=github"></a> &nbsp; 
+  <a href="https://github.com/nxZhai/FPBA"><img src="https://img.shields.io/badge/GitHub-FPBA-9E95B7?logo=github"></a> &nbsp;
   <a href='https://huggingface.co/Oliver1515/FPBA-CNNSpot'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Model-CNNSpot(FPBA)-blue'></a> &nbsp; 
   <!-- <br> -->
   <a href='https://huggingface.co/datasets/Oliver1515/ProGAN-Eval'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Eval%20Dataset-ProGAN--Eval-blue'></a> &nbsp;
   <br>
 </div>
 
-Recent advancements in image synthesis, particularly with the advent of GAN and Diffusion models, have amplified public concerns regarding the dissemination of disinformation. To address such concerns, numerous AI-generated Image (AIGI) Detectors have been proposed and achieved promising performance in identifying fake images. However, there still lacks a systematic understanding of the adversarial robustness of AIGI detectors. In this paper, we examine the vulnerability of state-of-the-art AIGI detectors against adversarial attack under white-box and black-box settings, which has been rarely investigated so far. To this end, we propose a new method to attack AIGI detectors. First, inspired by the obvious difference between real images and fake images in the frequency domain, we add perturbations under the frequency domain to push the image away from its original frequency distribution. Second, we explore the full posterior distribution of the surrogate model to further narrow this gap between heterogeneous AIGI detectors, e.g., transferring adversarial examples across CNNs and ViTs. This is achieved by introducing a novel post-train Bayesian strategy that turns a single surrogate into a Bayesian one, capable of simulating diverse victim models using one pre-trained surrogate, without the need for re-training. We name our method as Frequency-based Post-train Bayesian Attack, or FPBA. Through FPBA, we demonstrate that adversarial attacks pose a real threat to AIGI detectors. FPBA can deliver successful black-box attacks across various detectors, generators, defense methods, and even evade cross-generator and compressed image detection, which are crucial real-world detection scenarios. 
+GANs and diffusion models have raised concerns about the robustness of AI-generated image (AIGI) detectors. We propose Frequency-based Post-train Bayesian Attack (FPBA), which combines frequency-domain perturbations with a Bayesian surrogate to improve black-box transferability without retraining. Experiments show that FPBA effectively attacks diverse detectors across generators, defenses, and compression settings.
 
 <img width="2496" height="860" alt="image" src="https://github.com/user-attachments/assets/4fe12226-248c-427e-833d-ee97f18d279e" />
 
 
-## Setup
+## ⚙️ Setup
+
+### 🧪 Environment
+
+```bash
+conda create -n fpba python=3.10 -y
+conda activate fpba
+pip install -r requirements.txt
+```
 
 
-[Download](https://huggingface.co/collections/Oliver1515/fpba) checkpoints trained on CNNDetect's dataset and example images from huggingface for test.
+### 🗂️ Dataset
+
+Download the Synthetic LSUN / ProGAN subsets and arrange them as follows:
+
+| Subset | Official source |
+|---|---|
+| `train` | [CNNSpot Train Set](https://github.com/PeterWang512/CNNDetection#training-set) |
+| `eval` | [CNNSpot Val Set](https://github.com/PeterWang512/CNNDetection#validation-set) |
+| `exp` | 🤗 [ProGAN-Exp](https://huggingface.co/datasets/Oliver1515/ProGAN-Exp) |
 
 
-## Experiments
+```text
+<data_root>/
+├── gan_train/{0_real,1_fake}/
+├── gan_val/{0_real,1_fake}/
+└── gan_exp/{0_real,1_fake}/
+```
 
-Attack CNNSpot by FPBA:
+Use the full `gan_train` and `gan_val` splits for training. The smaller
+`gan_exp` split is intended for attack and transfer smoke tests.
 
-```shell
-python attack.py \
-    --seed 42 \
-    --exp_name test \
-    --mode attack \
-    --bayes True \
-    --attack FPBA \
-    --batch_size 4 \
-    --model CNNSpot \
-    --dataset gan \
-    --data_root ./gan_exp \
+### 🧠 Model weights
+
+Download the checkpoints from the following Hugging Face repositories and
+place them under `./checkpoints/`:
+
+| Model | Hugging Face |
+|---|---|
+| CNNSpot | 🤗 [FPBA-CNNSpot](https://huggingface.co/Oliver1515/FPBA-CNNSpot) |
+| MobileNet | 🤗 [FPBA-MobileNet](https://huggingface.co/Oliver1515/FPBA-MobileNet) |
+| EvalModel | 🤗 [FPBA-EvalModel](https://huggingface.co/Oliver1515/FPBA-EvalModel) |
+
+The expected layout is:
+
+```text
+checkpoints/
+├── CNNSpot_gan.pth
+├── MobileNet_gan.pth
+├── DenseNet_gan.pth
+├── EfficientNet_gan.pth
+├── ViT_gan.pth
+├── Swin_gan.pth
+├── Spec_gan.pth
+├── DCTA_gan.pth
+├── mean_gan.pt
+├── var_gan.pt
+└── appended_mlp/
+    ├── CNNSpot/{0,1,2}_CNNSpot_PYX_AppendedModel_AT.pth
+    └── MobileNet/{0,1,2}_MobileNet_PYX_AppendedModel_AT.pth
+```
+
+`Spec_gan.pth` is the published rename of `autoGAN_gan.pth`; do not use the
+unvalidated `archive/spec_gan.pth` checkpoint.
+
+> The Hugging Face repositories store files at their repository roots. After downloading, move the three CNNSpot auxiliary files into `checkpoints/appended_mlp/CNNSpot/`, move the three MobileNet auxiliary files into `checkpoints/appended_mlp/MobileNet/`, and place the detector checkpoints and DCTA statistics directly under `checkpoints/` as shown above.
+
+## 🧪 Experiments
+
+FPBA supports two surrogate models: `CNNSpot` and `MobileNet`.
+
+### 🔧 Surrogate-model training
+
+#### 🏗️ Backbone training
+
+Train the CNNSpot or MobileNet detector backbone with early stopping:
+
+```bash
+python train.py --mode train --earlystop True --bayes False \
+    --model CNNSpot --dataset gan --data_root <data_root> \
+    --exp_name train_cnnspot --checkpoints_dir ./checkpoints
+
+python train.py --mode train --earlystop True --bayes False \
+    --model MobileNet --dataset gan --data_root <data_root> \
+    --exp_name train_mobilenet --checkpoints_dir ./checkpoints
+```
+
+#### 🧩 FPBA auxiliary-model training
+
+After the backbone is available, train the three appended posterior MLPs:
+
+```bash
+python train.py --mode train --earlystop False --bayes True \
+    --model CNNSpot --dataset gan --data_root <data_root> \
+    --exp_name bayes_cnnspot --ckpt ./checkpoints/CNNSpot_gan.pth \
+    --appmodel_ckpt_root ./checkpoints/appended_mlp/CNNSpot
+
+python train.py --mode train --earlystop False --bayes True \
+    --model MobileNet --dataset gan --data_root <data_root> \
+    --exp_name bayes_mobilenet --ckpt ./checkpoints/MobileNet_gan.pth \
+    --appmodel_ckpt_root ./checkpoints/appended_mlp/MobileNet
+```
+
+### 🧱 White-box attack
+
+#### ⚡ Adversarial example generation
+
+Generate FPBA adversarial examples with either surrogate:
+
+```bash
+python attack.py --mode attack --bayes True --attack FPBA \
+    --model CNNSpot --dataset gan --data_root <data_root>/gan_exp \
+    --exp_name attack_cnnspot --N 5 \
     --ckpt ./checkpoints/CNNSpot_gan.pth \
-    --appmodel_ckpt_root ./appended_mlp/CNNSpot \
-    --appmodel_ckpt_name _CNNSpot_PYX_AppendedModel_AT.pth \
-    --adv_data_path ./output \
-    --results_dir ./results
+    --appmodel_ckpt_root ./checkpoints/appended_mlp/CNNSpot \
+    --adv_data_path ./output/cnnspot_fpba
 
+python attack.py --mode attack --bayes True --attack FPBA \
+    --model MobileNet --dataset gan --data_root <data_root>/gan_exp \
+    --exp_name attack_mobilenet --N 5 \
+    --ckpt ./checkpoints/MobileNet_gan.pth \
+    --appmodel_ckpt_root ./checkpoints/appended_mlp/MobileNet \
+    --adv_data_path ./output/mobilenet_fpba
 ```
 
-Transfer Attack DenseNet or Swin model:
+> Before attacking, the script keeps only samples that the surrogate classifies correctly. Consequently, the output count may be smaller than `gan_exp`, and the reported ASR is computed on the retained samples.
 
-```shell
-python test.py \
-    --seed 42 \
-    --mode tf_atk \
-    --exp_name fpba_densenet \
-    --earlystop True \
-    --bayes False \
-    --model DenseNet \
-    --dataset gan \
-    --data_root ./output \
-    --ckpt ./checkpoints/DenseNet_gan.pth \ 
-    --results_dir ./results \
-    --tf_attack FPBA \
-    --surrogate CNNSpot
+### 🌐 Black-box attack
+
+#### 🎯 Transfer to victim models
+
+Evaluate the generated samples on DenseNet, ViT, Swin, EfficientNet, or any
+other supported victim by replacing `<victim>`:
+
+```bash
+python test.py --mode tf_atk --model <victim> --dataset gan \
+    --data_root ./output/cnnspot_fpba \
+    --ckpt ./checkpoints/<victim>_gan.pth \
+    --tf_attack FPBA --surrogate CNNSpot --exp_name transfer_cnnspot
 ```
 
-## Cititing FPBA
+Supported victims include `CNNSpot`, `DenseNet`, `EfficientNet`, `MobileNet`,
+`Spec`, `DCTA`, `ViT`, and `Swin`. For `DCTA`, add
+`--dcta_ckpt_dir ./checkpoints` to load `mean_gan.pt` and `var_gan.pt`.
+Repeat the command with `./output/mobilenet_fpba` and
+`--surrogate MobileNet` to evaluate the MobileNet surrogate.
+
+## 📚 Citation
 
 If you find this paper useful for your research, please use the following BibTeX entry.
 
@@ -74,3 +174,7 @@ If you find this paper useful for your research, please use the following BibTeX
   publisher={IEEE}
 }
 ```
+
+## 🙏 Acknowledgement
+
+We thank the authors of [Spectrum Simulation Attack (SSA)](https://github.com/yuyang-long/SSA) for their open-source implementation.

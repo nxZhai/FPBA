@@ -1,15 +1,16 @@
-import os
 import csv
-import sys
 import json
-import torch
+import os
+import random
+import sys
 from collections import OrderedDict
+from copy import deepcopy
 
 import numpy as np
-import random
+import torch
 from sklearn import metrics
 
-from copy import deepcopy
+__path__ = [os.path.join(os.path.dirname(__file__), "utils")]
 
 
 def set_random_seed(seed=42):
@@ -20,7 +21,7 @@ def set_random_seed(seed=42):
     torch.backends.cudnn.deterministic = True
     np.random.seed(seed)
     random.seed(seed)
-    
+
 
 def standard_confusion_matrix(gt, pred):
     """
@@ -52,7 +53,6 @@ def get_accuracy(gt, pred):
 
 def get_classification_scores(gt, pred):
     [[tp, fp], [fn, tn]] = standard_confusion_matrix(gt, pred)
-    # REAL Accuracy, FAKE Accuracy
     try:
         fake_acc = tp / (tp + fn)
     except ZeroDivisionError as error:
@@ -63,7 +63,6 @@ def get_classification_scores(gt, pred):
     except ZeroDivisionError as error:
         real_acc = np.Inf
 
-    # Precision, Recall, F1-score
     try:
         precision = tp / (tp + fp)
     except ZeroDivisionError as error:
@@ -76,7 +75,6 @@ def get_classification_scores(gt, pred):
 
     f1_score = 2 * (precision * recall) / (precision + recall)
     return fake_acc, real_acc, precision, recall, f1_score
-
 
 
 def dct(x, norm=None):
@@ -98,19 +96,19 @@ def dct(x, norm=None):
 
     Vc = torch.fft.fft(v)
 
-    k = - torch.arange(N, dtype=x.dtype, device=x.device)[None, :] * np.pi / (2 * N)
+    k = -torch.arange(N, dtype=x.dtype, device=x.device)[None, :] * np.pi / (2 * N)
     W_r = torch.cos(k)
     W_i = torch.sin(k)
 
-    # V = Vc[:, :, 0] * W_r - Vc[:, :, 1] * W_i
     V = Vc.real * W_r - Vc.imag * W_i
-    if norm == 'ortho':
+    if norm == "ortho":
         V[:, 0] /= np.sqrt(N) * 2
         V[:, 1:] /= np.sqrt(N / 2) * 2
 
     V = 2 * V.view(*x_shape)
 
     return V
+
 
 def dct_2d(x, norm=None):
     """
@@ -126,6 +124,7 @@ def dct_2d(x, norm=None):
     X1 = dct(x, norm=norm)
     X2 = dct(X1.transpose(-1, -2), norm=norm)
     return X2.transpose(-1, -2)
+
 
 def idct(X, norm=None):
     """
@@ -146,11 +145,15 @@ def idct(X, norm=None):
 
     X_v = X.contiguous().view(-1, x_shape[-1]) / 2
 
-    if norm == 'ortho':
+    if norm == "ortho":
         X_v[:, 0] *= np.sqrt(N) * 2
         X_v[:, 1:] *= np.sqrt(N / 2) * 2
 
-    k = torch.arange(x_shape[-1], dtype=X.dtype, device=X.device)[None, :] * np.pi / (2 * N)
+    k = (
+        torch.arange(x_shape[-1], dtype=X.dtype, device=X.device)[None, :]
+        * np.pi
+        / (2 * N)
+    )
     W_r = torch.cos(k)
     W_i = torch.sin(k)
 
@@ -165,10 +168,11 @@ def idct(X, norm=None):
     v = torch.fft.ifft(tmp)
 
     x = v.new_zeros(v.shape)
-    x[:, ::2] += v[:, :N - (N // 2)]
-    x[:, 1::2] += v.flip([1])[:, :N // 2]
+    x[:, ::2] += v[:, : N - (N // 2)]
+    x[:, 1::2] += v.flip([1])[:, : N // 2]
 
     return x.view(*x_shape).real
+
 
 def idct_2d(X, norm=None):
     """
